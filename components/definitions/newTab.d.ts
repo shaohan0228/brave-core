@@ -24,7 +24,8 @@ declare namespace NewTab {
   }
 
   export interface BraveTodayState {
-
+    isFetching: boolean | string // string if error state
+    feed?: BraveToday.Feed
   }
 
   export interface Image {
