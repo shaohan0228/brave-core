@@ -17,6 +17,7 @@
 #include "brave/components/brave_shields/browser/brave_shields_web_contents_observer.h"
 #include "brave/components/brave_shields/browser/buildflags/buildflags.h"  // For STP
 #include "brave/components/brave_wayback_machine/buildflags.h"
+#include "brave/components/ephemeral_storage/browser/ephemeral_storage_tab_helper.h"
 #include "brave/components/greaselion/browser/buildflags/buildflags.h"
 #include "brave/components/ipfs/buildflags/buildflags.h"
 #include "brave/components/speedreader/buildflags.h"
@@ -129,6 +130,9 @@ void AttachTabHelpers(content::WebContents* web_contents) {
   FarblingTabHelper::CreateForWebContents(web_contents);
 
   brave_stats::BraveStatsTabHelper::CreateForWebContents(web_contents);
+
+  ephemeral_storage::EphemeralStorageTabHelper::CreateForWebContents(
+      web_contents);
 }
 
 }  // namespace brave

@@ -150,6 +150,7 @@ source_set("browser_process") {
     "//brave/components/brave_webtorrent/browser/buildflags",
     "//brave/components/content_settings/core/browser",
     "//brave/components/crypto_dot_com/browser/buildflags",
+    "//brave/components/ephemeral_storage/browser",
     "//brave/components/gemini/browser/buildflags",
     "//brave/components/greaselion/browser/buildflags",
     "//brave/components/ipfs/buildflags",
