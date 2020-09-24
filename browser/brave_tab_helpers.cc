@@ -8,6 +8,7 @@
 #include "base/command_line.h"
 #include "base/feature_list.h"
 #include "brave/browser/brave_stats/brave_stats_tab_helper.h"
+#include "brave/browser/ephemeral_storage/ephemeral_storage_tab_helper.h"
 #include "brave/browser/farbling/farbling_tab_helper.h"
 #include "brave/browser/tor/buildflags.h"
 #include "brave/browser/ui/bookmark/brave_bookmark_tab_helper.h"
@@ -17,7 +18,6 @@
 #include "brave/components/brave_shields/browser/brave_shields_web_contents_observer.h"
 #include "brave/components/brave_shields/browser/buildflags/buildflags.h"  // For STP
 #include "brave/components/brave_wayback_machine/buildflags.h"
-#include "brave/components/ephemeral_storage/browser/ephemeral_storage_tab_helper.h"
 #include "brave/components/greaselion/browser/buildflags/buildflags.h"
 #include "brave/components/ipfs/buildflags/buildflags.h"
 #include "brave/components/speedreader/buildflags.h"

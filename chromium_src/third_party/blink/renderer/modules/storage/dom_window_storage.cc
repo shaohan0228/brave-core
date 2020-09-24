@@ -4,9 +4,13 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "../../../../../../../third_party/blink/renderer/modules/storage/dom_window_storage.cc"
-#include "third_party/blink/renderer/modules/storage/brave_dom_window_storage.h"
+#include "third_party/blink/public/common/features.h"
+#include "third_party/blink/public/web/web_view_client.h"
 #include "third_party/blink/renderer/core/execution_context/execution_context.h"
+#include "third_party/blink/renderer/core/exported/web_view_impl.h"
 #include "third_party/blink/renderer/core/frame/local_dom_window.h"
+#include "third_party/blink/renderer/core/frame/web_local_frame_impl.h"
+#include "third_party/blink/renderer/modules/storage/brave_dom_window_storage.h"
 
 namespace blink {
 
@@ -29,13 +33,9 @@ void MaybeClearAccessDeniedException(StorageArea* storage,
 
 }  // namespace
 
-const base::Feature kBraveEphemeralStorage{"EphemeralStorage",
-                                           base::FEATURE_DISABLED_BY_DEFAULT};
-
 class EphemeralStorageNamespaces
     : public GarbageCollected<EphemeralStorageNamespaces>,
       public Supplement<Page> {
-
  public:
   EphemeralStorageNamespaces(StorageController* controller,
                              const String& session_storage_id,
@@ -43,7 +43,7 @@ class EphemeralStorageNamespaces
   virtual ~EphemeralStorageNamespaces() = default;
 
   static const char kSupplementName[];
-  static EphemeralStorageNamespaces* From(Page* page);
+  static EphemeralStorageNamespaces* From(Page* page, LocalDOMWindow* window);
 
   StorageNamespace* session_storage() { return session_storage_.Get(); }
   StorageNamespace* local_storage() { return local_storage_.Get(); }
@@ -75,7 +75,10 @@ void EphemeralStorageNamespaces::Trace(Visitor* visitor) const {
 }
 
 // static
-EphemeralStorageNamespaces* EphemeralStorageNamespaces::From(Page* page) {
+EphemeralStorageNamespaces* EphemeralStorageNamespaces::From(
+    Page* page,
+    LocalDOMWindow* window) {
+  DCHECK(window);
   if (!page)
     return nullptr;
 
@@ -84,13 +87,24 @@ EphemeralStorageNamespaces* EphemeralStorageNamespaces::From(Page* page) {
   if (supplement)
     return supplement;
 
+  Document* document = window->GetFrame()->GetDocument();
+  auto* web_frame = WebLocalFrameImpl::FromFrame(document->GetFrame());
+  WebViewImpl* webview = web_frame->ViewImpl();
+  if (!webview || !webview->Client())
+    return nullptr;
+  String session_storage_id =
+      String::FromUTF8(webview->Client()->GetSessionStorageNamespaceId()) +
+      String("/ephemeral-session-storage");
+
   auto* security_origin =
       page->MainFrame()->GetSecurityContext()->GetSecurityOrigin();
+  String domain = security_origin->RegistrableDomain();
+  // RegistrableDomain might return an empty string if this host is an IP
+  // address or a file URL.
+  if (domain.IsEmpty())
+    domain = String::FromUTF8(security_origin->ToUrlOrigin().Serialize());
 
-  String session_storage_id = security_origin->RegistrableDomain() +
-                              String("/ephemeral-session-storage");
-  String local_storage_id = security_origin->RegistrableDomain() +
-                            String("/ephemeral-local-storage");
+  String local_storage_id = domain + String("/ephemeral-local-storage");
   supplement = MakeGarbageCollected<EphemeralStorageNamespaces>(
       StorageController::GetInstance(), session_storage_id, local_storage_id);
 
@@ -136,7 +150,7 @@ StorageArea* BraveDOMWindowStorage::sessionStorage(
       DOMWindowStorage::From(*window).sessionStorage(exception_state);
 
   MaybeClearAccessDeniedException(storage, *window, &exception_state);
-  if (base::FeatureList::IsEnabled(kBraveEphemeralStorage)) {
+  if (base::FeatureList::IsEnabled(features::kBraveEphemeralStorage)) {
     storage = ephemeralSessionStorage(storage);
   }
 
@@ -145,7 +159,7 @@ StorageArea* BraveDOMWindowStorage::sessionStorage(
 
 StorageArea* BraveDOMWindowStorage::ephemeralSessionStorage(
     StorageArea* non_ephemeral_storage) {
-  if (!base::FeatureList::IsEnabled(kBraveEphemeralStorage))
+  if (!base::FeatureList::IsEnabled(features::kBraveEphemeralStorage))
     return non_ephemeral_storage;
 
   LocalDOMWindow* window = GetSupplementable();
@@ -162,12 +176,12 @@ StorageArea* BraveDOMWindowStorage::ephemeralSessionStorage(
 
   Page* page = window->GetFrame()->GetDocument()->GetPage();
   EphemeralStorageNamespaces* namespaces =
-      EphemeralStorageNamespaces::From(page);
+      EphemeralStorageNamespaces::From(page, window);
   if (!namespaces)
     return nullptr;
 
   auto storage_area =
-      namespaces->local_storage()->GetCachedArea(window->GetSecurityOrigin());
+      namespaces->session_storage()->GetCachedArea(window->GetSecurityOrigin());
 
   Document* document = window->GetFrame()->GetDocument();
   ephemeral_session_storage_ =
@@ -182,7 +196,7 @@ StorageArea* BraveDOMWindowStorage::localStorage(
   auto* storage = DOMWindowStorage::From(*window).localStorage(exception_state);
 
   MaybeClearAccessDeniedException(storage, *window, &exception_state);
-  if (base::FeatureList::IsEnabled(kBraveEphemeralStorage)) {
+  if (base::FeatureList::IsEnabled(features::kBraveEphemeralStorage)) {
     storage = ephemeralLocalStorage(storage);
   }
 
@@ -191,7 +205,7 @@ StorageArea* BraveDOMWindowStorage::localStorage(
 
 StorageArea* BraveDOMWindowStorage::ephemeralLocalStorage(
     StorageArea* non_ephemeral_storage) {
-  if (!base::FeatureList::IsEnabled(kBraveEphemeralStorage))
+  if (!base::FeatureList::IsEnabled(features::kBraveEphemeralStorage))
     return non_ephemeral_storage;
 
   LocalDOMWindow* window = GetSupplementable();
@@ -208,7 +222,7 @@ StorageArea* BraveDOMWindowStorage::ephemeralLocalStorage(
 
   Page* page = window->GetFrame()->GetDocument()->GetPage();
   EphemeralStorageNamespaces* namespaces =
-      EphemeralStorageNamespaces::From(page);
+      EphemeralStorageNamespaces::From(page, window);
   if (!namespaces)
     return nullptr;
 
