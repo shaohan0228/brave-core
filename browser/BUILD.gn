@@ -112,7 +112,6 @@ source_set("browser_process") {
     "autoplay",
     "content_settings",
     "download",
-    "farbling",
     "net",
     "profiles",
     "renderer_context_menu",
