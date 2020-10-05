@@ -630,6 +630,7 @@ brave_java_resources = [
   "java/res/drawable-xxxhdpi/omnibox_https_valid.png",
   "java/res/drawable-xxxhdpi/ic_cross_modal.png",
   "java/res/drawable-xxxhdpi/search_engine_yahoo.png",
+  "java/res/layout/bottom_control_container.xml",
   "java/res/layout/bottom_toolbar.xml",
   "java/res/layout/bottom_toolbar_browsing.xml",
   "java/res/layout/bottom_toolbar_menu_button.xml",
