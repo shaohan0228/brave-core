@@ -98,9 +98,11 @@
           </th>
           <td>[[getDeviceDisplayDate(item)]]</td>
           <td>
-            <cr-button on-click="onDeleteDevice_" arg="[[item.signinScopedDeviceId]]">
-              (delete)
-            </cr-button>
+            <template is="dom-if" if="[[!item.isCurrentDevice]]">
+              <cr-button on-click="onDeleteDevice_" arg="[[item.guid]]">
+                Delete
+              </cr-button>
+            </template>
           </td>
         </tr>
       </template>

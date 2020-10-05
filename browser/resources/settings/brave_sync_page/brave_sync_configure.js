@@ -118,7 +118,7 @@ Polymer({
   },
 
   onDeleteDevice_: async function(e) {
-    const deviceId = e.currentTarget.arg
-    await this.browserProxy_.deleteDevice(deviceId);
+    const deviceGuid = e.currentTarget.arg
+    await this.browserProxy_.deleteDevice(deviceGuid);
   }
 });
