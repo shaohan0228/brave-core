@@ -12,15 +12,15 @@ import android.widget.TextView;
 import org.chromium.chrome.R;
 import org.chromium.chrome.browser.BraveRewardsHelper;
 import org.chromium.chrome.browser.ChromeTabbedActivity;
-import org.chromium.chrome.browser.preferences.BravePref;
-import org.chromium.components.user_prefs.UserPrefs;
-import org.chromium.chrome.browser.profiles.Profile;
-import org.chromium.chrome.browser.suggestions.tile.TileWithTextView;
-import org.chromium.chrome.browser.tabmodel.TabModel;
-import org.chromium.chrome.browser.ntp_background_images.util.SponsoredImageUtil;
 import org.chromium.chrome.browser.ntp_background_images.util.NTPUtil;
+import org.chromium.chrome.browser.ntp_background_images.util.SponsoredImageUtil;
+import org.chromium.chrome.browser.preferences.BravePref;
+import org.chromium.chrome.browser.profiles.Profile;
+import org.chromium.chrome.browser.suggestions.tile.TileView;
+import org.chromium.chrome.browser.tabmodel.TabModel;
+import org.chromium.components.user_prefs.UserPrefs;
 
-public class BraveTileWithTextView extends TileWithTextView {
+public class BraveTileWithTextView extends TileView {
     public BraveTileWithTextView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
