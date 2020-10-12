@@ -516,6 +516,9 @@ By installing this extension, you are agreeing to the Google Widevine Terms of U
       <message name="IDS_SETTINGS_BRAVE_SYNC_DEVICE_LIST_LAST_ACTIVE_COLUMN" desc="Brave Sync device list table column title for last active date">
         Last Active
       </message>
+      <message name="IDS_SETTINGS_BRAVE_SYNC_DEVICE_LIST_REMOVE_COLUMN" desc="Brave Sync device list table column title for remove other device buttons">
+        Remove
+      </message>
       <message name="IDS_BRAVE_SYNC_SETUP_TITLE" desc="The Brave Sync title.">
         Sync Setup
       </message>
