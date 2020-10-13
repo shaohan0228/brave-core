@@ -25,6 +25,64 @@
 #include "content/public/browser/web_ui.h"
 #include "ui/base/webui/web_ui_util.h"
 
+// Need to move out
+#include <map>
+#include "base/strings/string_split.h"
+#include "base/version.h"
+
+namespace {
+
+// Remove this function when all channels will be able to remove itself
+bool RemoteDeviceSupportsSelfDelete(const std::string& remote_chrome_string) {
+  // Array of versions per each channel
+  using MajorToFull = std::map<int, base::Version>;
+  const MajorToFull can_self_delete_from{
+      {17,
+       base::Version({1, 17, 26})},  // Nightly which actually can self delete
+      // Below are for test, fill with actual when uplifted
+      {16, base::Version({1, 16, 100})},  // Beta & Dev
+      {15, base::Version({1, 15, 100})},  // Release
+
+      // For the future
+      {18, base::Version({1, 18, 0})},
+      {19, base::Version({1, 19, 0})},
+      {20, base::Version({1, 20, 0})},
+  };
+
+  std::vector<base::StringPiece> segments =
+      base::SplitStringPiece(remote_chrome_string, " ", base::TRIM_WHITESPACE,
+                             base::SPLIT_WANT_NONEMPTY);
+  if (segments.empty()) {
+    // Something wrong is in function, assume remove device cannot delete
+    // itself properly
+    return false;
+  }
+
+  base::Version remote_chrome_version(segments[0]);
+  DCHECK(remote_chrome_version.IsValid());
+  DCHECK_EQ(remote_chrome_version.components().size(), 4u);
+  if (!remote_chrome_version.IsValid() ||
+      remote_chrome_version.components().size() != 4u) {
+    return false;
+  }
+
+  const auto& rcvc = remote_chrome_version.components();
+  base::Version remote_brave_version({rcvc[1], rcvc[2], rcvc[3]});
+
+  MajorToFull::const_iterator it =
+      can_self_delete_from.find(remote_brave_version.components()[1]);
+
+  if (it == can_self_delete_from.end()) {
+    // The version of remote computer is beyond of anything, so most probably
+    // it does not support self delete on remote request
+    return false;
+  }
+
+  return (remote_brave_version >= it->second);
+}
+
+}  // namespace
+
 BraveSyncHandler::BraveSyncHandler() : weak_ptr_factory_(this) {}
 
 BraveSyncHandler::~BraveSyncHandler() {}
@@ -261,9 +319,12 @@ base::Value BraveSyncHandler::GetSyncDeviceList() {
     bool is_current_device =
         local_device_info ? local_device_info->guid() == device->guid() : false;
     device_value.SetBoolKey("isCurrentDevice", is_current_device);
-    device_value.SetStringKey("signinScopedDeviceId",
-                              device->signin_scoped_device_id());
     device_value.SetStringKey("guid", device->guid());
+    device_value.SetBoolKey(
+        "supportsSelfDelete",
+        !is_current_device &&
+            RemoteDeviceSupportsSelfDelete(device->chrome_version()));
+
     device_list.Append(std::move(device_value));
   }
   return device_list;
