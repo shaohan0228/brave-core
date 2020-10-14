@@ -7,6 +7,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 #include "base/strings/string_split.h"
 #include "base/version.h"
@@ -15,8 +16,7 @@ namespace {
 
 using MajorToFull = std::map<int, base::Version>;
 const MajorToFull can_self_delete_from{
-    {17,
-     base::Version({1, 17, 26})},  // Nightly which actually can self delete
+    {17, base::Version({1, 17, 26})},  // Nightly which actually can self delete
     // Below are for test, fill with actual when uplifted
     {16, base::Version({1, 16, 100})},  // Beta & Dev
     {15, base::Version({1, 15, 100})},  // Release
