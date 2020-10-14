@@ -86,12 +86,22 @@ source_set("profile_sync_service_helper") {
   ]
 }
 
+source_set("version_helper") {
+  sources = [
+    "version_helper.cc",
+    "version_helper.h",
+  ]
+
+  deps = [ "//base" ]
+}
+
 group("brave_sync") {
   deps = [
     ":crypto",
     ":features",
     ":network_time_helper",
     ":prefs",
+    ":version_helper",
     "buildflags",
     "//base",
   ]
