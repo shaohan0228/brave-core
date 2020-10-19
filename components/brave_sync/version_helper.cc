@@ -33,7 +33,8 @@ namespace brave_sync {
 
 // Remove this function when all channels will be able to remove itself
 bool RemoteDeviceSupportsSelfDelete(const std::string& remote_chrome_string) {
-  // Array of versions per each channel
+  // Array of versions per each channel which can process delete device request
+  // in a proper way
   std::vector<base::StringPiece> segments =
       base::SplitStringPiece(remote_chrome_string, " ", base::TRIM_WHITESPACE,
                              base::SPLIT_WANT_NONEMPTY);
@@ -44,8 +45,6 @@ bool RemoteDeviceSupportsSelfDelete(const std::string& remote_chrome_string) {
   }
 
   base::Version remote_chrome_version(segments[0]);
-  DCHECK(remote_chrome_version.IsValid());
-  DCHECK_EQ(remote_chrome_version.components().size(), 4u);
   if (!remote_chrome_version.IsValid() ||
       remote_chrome_version.components().size() != 4u) {
     return false;
