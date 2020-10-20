@@ -21,10 +21,14 @@ namespace brave {
 namespace {
 
 BraveWindowTracker* g_brave_windows_tracker_instance = nullptr;
+BraveNewTabCountTracker* g_brave_ntp_count_tracker_instance = nullptr;
 
 constexpr char kLastTimeIncognitoUsed[] =
     "core_p3a_metrics.incognito_used_timestamp";
 constexpr char kTorUsed[] = "core_p3a_metrics.tor_used";
+constexpr char kNewTabsCreated[] = "brave.new_tab_page.p3a_new_tabs_created";
+constexpr char kSponsoredNewTabsCreated[] =
+    "brave.new_tab_page.p3a_sponsored_new_tabs_created";
 
 constexpr size_t kWindowUsageP3AIntervalMinutes = 10;
 
@@ -170,6 +174,39 @@ void BraveWindowTracker::UpdateP3AValues() const {
   // 0 -> Yes; 1 -> No.
   const int tor_used = !local_state_->GetBoolean(kTorUsed);
   UMA_HISTOGRAM_EXACT_LINEAR("Brave.Core.TorEverUsed", tor_used, 1);
+}
+
+void BraveNewTabCountTracker::CreateInstance(PrefService* local_state) {
+  g_brave_ntp_count_tracker_instance = new BraveNewTabCountTracker(local_state);
+}
+
+void BraveNewTabCountTracker::RegisterPrefs(PrefRegistrySimple* registry) {
+  registry->RegisterListPref(kNewTabsCreated);
+  registry->RegisterListPref(kSponsoredNewTabsCreated);
+}
+
+BraveNewTabCountTracker::BraveNewTabCountTracker(PrefService* local_state)
+    : new_tab_count_state_(local_state, kNewTabsCreated),
+      branded_new_tab_count_state_(local_state, kSponsoredNewTabsCreated) {
+  ::ntp_background_images::ViewCounterService::AddObserver(this);
+}
+
+BraveNewTabCountTracker::~BraveNewTabCountTracker() {
+  ::ntp_background_images::ViewCounterService::RemoveObserver(this);
+}
+
+// ViewCounterService::Observer:
+void BraveNewTabCountTracker::OnBrandedWallpaperShown() {
+  LOG(ERROR) << "BSC]] LOL OnBrandedWallpaperShown";
+  if (branded_new_tab_count_state_.IsOneWeekPassed()) {
+  }
+}
+
+// ViewCounterService::Observer:
+void BraveNewTabCountTracker::OnWallpaperShown() {
+  LOG(ERROR) << "BSC]] LOL OnWallpaperShown";
+  if (new_tab_count_state_.IsOneWeekPassed()) {
+  }
 }
 
 }  // namespace brave

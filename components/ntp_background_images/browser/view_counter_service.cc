@@ -27,7 +27,10 @@
 
 namespace ntp_background_images {
 
-// static
+// BEGIN - static
+base::ObserverList<ViewCounterService::Observer>::Unchecked
+    ViewCounterService::observer_list_;
+
 void ViewCounterService::RegisterProfilePrefs(
     user_prefs::PrefRegistrySyncable* registry) {
   registry->RegisterBooleanPref(
@@ -41,6 +44,15 @@ void ViewCounterService::RegisterProfilePrefs(
   registry->RegisterBooleanPref(
       prefs::kNewTabPageShowBackgroundImage, true);
 }
+
+void ViewCounterService::AddObserver(Observer* observer) {
+  observer_list_.AddObserver(observer);
+}
+
+void ViewCounterService::RemoveObserver(Observer* observer) {
+  observer_list_.RemoveObserver(observer);
+}
+// END - static
 
 ViewCounterService::ViewCounterService(NTPBackgroundImagesService* service,
                                        brave_ads::AdsService* ads_service,
@@ -96,7 +108,12 @@ ViewCounterService::GetCurrentBrandedWallpaperData() const {
 }
 
 base::Value ViewCounterService::GetCurrentWallpaperForDisplay() const {
+  for (auto& observer : observer_list_)
+    observer.OnWallpaperShown();
+
   if (ShouldShowBrandedWallpaper()) {
+    for (auto& observer : observer_list_)
+      observer.OnBrandedWallpaperShown();
     return GetCurrentWallpaper();
   }
 
