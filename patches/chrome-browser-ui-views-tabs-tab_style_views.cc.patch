@@ -1,8 +1,24 @@
 diff --git a/chrome/browser/ui/views/tabs/tab_style_views.cc b/chrome/browser/ui/views/tabs/tab_style_views.cc
-index 950c967b5f87a6e3f531e3155a420002a7510d3a..a9b5b74a1a5c345727c1deb631fce7fcbb2762dc 100644
+index 950c967b5f87a6e3f531e3155a420002a7510d3a..ad84681855bc39f55796c8740f490b998e2bc68a 100644
 --- a/chrome/browser/ui/views/tabs/tab_style_views.cc
 +++ b/chrome/browser/ui/views/tabs/tab_style_views.cc
-@@ -280,6 +280,7 @@ SkPath GM2TabStyle::GetPath(PathType path_type,
+@@ -154,6 +154,7 @@ class GM2TabStyle : public TabStyleViews {
+ 
+   std::unique_ptr<GlowHoverController> hover_controller_;
+   gfx::FontList normal_font_;
++  gfx::FontList semibold_font_;
+   gfx::FontList heavy_font_;
+ };
+ 
+@@ -189,6 +190,7 @@ GM2TabStyle::GM2TabStyle(Tab* tab)
+                             : nullptr),
+       normal_font_(views::style::GetFont(views::style::CONTEXT_LABEL,
+                                          views::style::STYLE_PRIMARY)),
++      semibold_font_(normal_font_.DeriveWithWeight(gfx::Font::Weight::SEMIBOLD)),
+       heavy_font_(views::style::GetFont(views::style::CONTEXT_BUTTON_MD,
+                                         views::style::STYLE_PRIMARY)) {
+   // TODO(dfried): create a new STYLE_PROMINENT or similar to use instead of
+@@ -280,6 +282,7 @@ SkPath GM2TabStyle::GetPath(PathType path_type,
    const ShapeModifier shape_modifier = GetShapeModifier(path_type);
    const bool extend_left_to_bottom = shape_modifier & kNoLowerLeftArc;
    const bool extend_right_to_bottom = shape_modifier & kNoLowerRightArc;
@@ -10,7 +26,23 @@ index 950c967b5f87a6e3f531e3155a420002a7510d3a..a9b5b74a1a5c345727c1deb631fce7fc
  
    SkPath path;
  
-@@ -533,7 +534,7 @@ TabStyle::SeparatorBounds GM2TabStyle::GetSeparatorBounds(float scale) const {
+@@ -459,6 +462,7 @@ TabStyle::TabColors GM2TabStyle::CalculateColors() const {
+       expected_opacity > 0.5f ? TabActive::kActive : TabActive::kInactive,
+       background_color);
+ 
++  BRAVE_CALCULATE_COLORS
+   return {foreground_color, background_color};
+ }
+ 
+@@ -472,6 +476,7 @@ const gfx::FontList& GM2TabStyle::GetFontList() const {
+     return heavy_font_;
+   }
+ 
++  BRAVE_GET_FONT_LIST
+   return normal_font_;
+ }
+ 
+@@ -533,7 +538,7 @@ TabStyle::SeparatorBounds GM2TabStyle::GetSeparatorBounds(float scale) const {
    separator_bounds.leading =
        gfx::RectF(aligned_bounds.x() + corner_radius,
                   aligned_bounds.y() +
@@ -19,7 +51,7 @@ index 950c967b5f87a6e3f531e3155a420002a7510d3a..a9b5b74a1a5c345727c1deb631fce7fc
                   separator_size.width(), separator_size.height());
  
    separator_bounds.trailing = separator_bounds.leading;
-@@ -888,12 +889,16 @@ void GM2TabStyle::PaintSeparators(gfx::Canvas* canvas) const {
+@@ -888,12 +893,16 @@ void GM2TabStyle::PaintSeparators(gfx::Canvas* canvas) const {
                                                     SK_AlphaOPAQUE));
    };
  
