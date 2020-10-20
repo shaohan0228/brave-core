@@ -8,6 +8,7 @@
 
 #include <string>
 
+#include "bat/ads/ad_type.h"
 #include "bat/ads/confirmation_type.h"
 #include "bat/ads/export.h"
 #include "bat/ads/result.h"
@@ -29,19 +30,13 @@ struct ADS_EXPORT AdContent {
   Result FromJson(
       const std::string& json);
 
-  enum class AdType {
-    kNone = 0,
-    kAdNotification,
-    kNewTabPageAd
-  };
-
   enum class LikeAction {
     kNone = 0,
     kThumbsUp,
     kThumbsDown
   };
 
-  AdType type = AdType::kNone;
+  AdType type = AdType::kUndefined;
   std::string uuid;
   std::string creative_instance_id;
   std::string creative_set_id;
@@ -52,7 +47,7 @@ struct ADS_EXPORT AdContent {
   std::string brand_display_url;
   std::string brand_url;
   LikeAction like_action = LikeAction::kNone;
-  ConfirmationType ad_action = ConfirmationType::kNone;
+  ConfirmationType ad_action = ConfirmationType::kUndefined;
   bool saved_ad = false;
   bool flagged_ad = false;
 };

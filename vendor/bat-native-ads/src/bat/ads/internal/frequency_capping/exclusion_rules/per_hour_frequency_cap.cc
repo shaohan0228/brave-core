@@ -60,7 +60,7 @@ std::deque<uint64_t> PerHourFrequencyCap::FilterHistory(
   std::deque<uint64_t> filtered_history;
 
   for (const auto& ad : history) {
-    if (ad.ad_content.type != AdContent::AdType::kAdNotification ||
+    if (ad.ad_content.type != AdType::kAdNotification ||
         ad.ad_content.creative_instance_id != creative_instance_id ||
         ad.ad_content.ad_action != ConfirmationType::kViewed) {
       continue;

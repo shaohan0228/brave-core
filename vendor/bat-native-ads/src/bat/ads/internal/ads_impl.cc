@@ -1399,7 +1399,7 @@ void AdsImpl::AppendAdNotificationToHistory(
   AdHistory ad_history;
   ad_history.timestamp_in_seconds =
       static_cast<uint64_t>(base::Time::Now().ToDoubleT());
-  ad_history.ad_content.type = AdContent::AdType::kAdNotification;
+  ad_history.ad_content.type = AdType::kAdNotification;
   ad_history.ad_content.uuid = info.uuid;
   ad_history.ad_content.creative_instance_id = info.creative_instance_id;
   ad_history.ad_content.creative_set_id = info.creative_set_id;
@@ -1420,7 +1420,7 @@ void AdsImpl::AppendNewTabPageAdToHistory(
   AdHistory ad_history;
   ad_history.timestamp_in_seconds =
       static_cast<uint64_t>(base::Time::Now().ToDoubleT());
-  ad_history.ad_content.type = AdContent::AdType::kNewTabPageAd;
+  ad_history.ad_content.type = AdType::kNewTabPageAd;
   ad_history.ad_content.uuid = info.uuid;
   ad_history.ad_content.creative_instance_id = info.creative_instance_id;
   ad_history.ad_content.creative_set_id = info.creative_set_id;
