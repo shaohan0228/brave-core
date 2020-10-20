@@ -96,6 +96,9 @@ void ViewCounterService::BrandedWallpaperWillBeDisplayed(
 
   ads_service_->OnNewTabPageAdEvent(wallpaper_id, creative_instance_id,
       ads::mojom::BraveAdsNewTabPageAdEventType::kViewed);
+
+  for (auto& observer : observer_list_)
+      observer.OnBrandedWallpaperShown();
 }
 
 NTPBackgroundImagesData*
@@ -112,8 +115,6 @@ base::Value ViewCounterService::GetCurrentWallpaperForDisplay() const {
     observer.OnWallpaperShown();
 
   if (ShouldShowBrandedWallpaper()) {
-    for (auto& observer : observer_list_)
-      observer.OnBrandedWallpaperShown();
     return GetCurrentWallpaper();
   }
 
