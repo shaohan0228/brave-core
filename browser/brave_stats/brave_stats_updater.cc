@@ -115,6 +115,11 @@ BraveStatsUpdater::BraveStatsUpdater(PrefService* pref_service)
 BraveStatsUpdater::~BraveStatsUpdater() {}
 
 void BraveStatsUpdater::Start() {
+  if (brave::IsDeveloperChannel() && usage_server_.empty()) {
+    VLOG(1) << "stats updater is disabled for developer build";
+    return;
+  }
+
   // Startup timer, only initiated once we've checked for a promo
   // code.
   DCHECK(!server_ping_startup_timer_);
@@ -139,6 +144,9 @@ void BraveStatsUpdater::Stop() {
 bool BraveStatsUpdater::MaybeDoThresholdPing(int score) {
   DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
   threshold_score_ += score;
+
+  if (brave::IsDeveloperChannel() && usage_server_.empty())
+    return true;
 
   // We only do this once
   if (HasDoneThresholdPing())
@@ -170,7 +178,9 @@ void BraveStatsUpdater::SetStatsThresholdCallback(
 
 GURL BraveStatsUpdater::BuildStatsEndpoint(const std::string& path) {
   auto stats_updater_url = GURL(usage_server_ + path);
-  DCHECK(stats_updater_url.is_valid());
+#if defined(OFFICIAL_BUILD)
+  CHECK(stats_updater_url.is_valid());
+#endif
   return stats_updater_url;
 }
 
